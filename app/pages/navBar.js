@@ -1,6 +1,6 @@
 import { useContext }  from 'react';
 
-import { NavBarContext } from './index.js';
+import { NavBarContext } from './index.tsx';
 
 
 

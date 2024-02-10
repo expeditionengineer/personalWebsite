@@ -3,6 +3,8 @@ import {useState, createContext} from 'react';
 // import Image from "next/image";
 import { Inter } from "next/font/google";
 // import styles from "@/styles/Home.module.css";
+
+import { clientPromise } from "../lib/mongodb.ts";
 import Header from "./header.js";
 import NavBar from "./navBar.js";
 import Content from "./content.js";
@@ -12,7 +14,39 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const NavBarContext = createContext("");
 
-export default function Home() {
+import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+
+type ConnectionStatus = {
+  isConnected: boolean;
+};
+export const getServerSideProps: GetServerSideProps<
+  ConnectionStatus
+> = async () => {
+  try {
+    await clientPromise;
+    // `await clientPromise` will use the default database passed in the MONGODB_URI
+    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
+    //
+    // `const client = await clientPromise`
+    // `const db = client.db("myDatabase")`
+    //
+    // Then you can execute queries against your database like so:
+    // db.find({}) or any of the MongoDB Node Driver commands
+
+    return {
+      props: { isConnected: true },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: { isConnected: false },
+    };
+  }
+};
+
+export default function Home({
+  isConnected,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [content, setContent] = useState("Home");
   return (
     <>
@@ -43,6 +77,14 @@ export default function Home() {
             <Footer />
           </div>
         </div>
+        <div>Connection Status to the MongoDB-Database: {isConnected ? (
+          <h2 className="subtitle">You are connected to MongoDB</h2>
+        ) : (
+          <h2 className="subtitle">
+            You are NOT connected to MongoDB. Check the <code>README.md</code>{" "}
+            for instructions.
+          </h2>
+        )}</div>
       </main>
     </>
   );

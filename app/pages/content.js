@@ -1,4 +1,4 @@
-import { NavBarContext } from "./index.js";
+import { NavBarContext } from "./index.tsx";
 import { useContext } from "react";
 
 export default function Content() {
